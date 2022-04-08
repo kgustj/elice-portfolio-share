@@ -20,6 +20,10 @@ class Certificate {
     static delete({ id }) {
         return CertificateModel.findOneAndDelete({ id });
     }
+
+    static deleteAll({ user_id }) {
+        return CertificateModel.deleteMany({ user_id });
+    }
 }
 
 export { Certificate };

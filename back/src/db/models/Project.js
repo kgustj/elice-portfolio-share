@@ -20,6 +20,10 @@ class Project {
     static delete({ id }) {
         return ProjectModel.findOneAndDelete({ id });
     }
+
+    static deleteAll({ user_id }) {
+        return ProjectModel.deleteMany({ user_id });
+    }
 }
 
 export { Project };

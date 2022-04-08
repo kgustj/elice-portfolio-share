@@ -310,7 +310,8 @@ userAuthRouter.get("/login/github/callback", async (req, res) => {
         const refreshToken = jwt.sign({ user_id: user.id }, process.env.REFRESH_SECRET_KEY, { expiresIn: "14d" });
 
         const { id, email, name, description, image, oauth } = user;
-        return res.status(200)
+        return res
+            .status(200)
             .cookie("refreshToken", refreshToken, { httpOnly: true })
             .json({
                 token: jwt.sign({ user_id: user.id }, process.env.JWT_SECRET_KEY),
