@@ -5,6 +5,12 @@ import fetch from "node-fetch";
 import { Router } from "express";
 import { uploadImage } from "../middlewares/uploadImage";
 import { login_required } from "../middlewares/login_required";
+
+import { awardAuthService } from "../services/awardService";
+import { blogService } from "../services/blogService";
+import { certificateService } from "../services/certificateService";
+import { educationService } from "../services/educationService";
+import { projectService } from "../services/projectService";
 import { userAuthService } from "../services/userService";
 
 import generatePassword from "../middlewares/generatePassword";
@@ -150,20 +156,15 @@ userAuthRouter.put("/user/current", login_required, uploadImage.single("image"),
     }
 });
 
-import { AwardModel } from "../db/schemas/award";
-import { BlogModel } from "../db/schemas/blog";
-import { CertificateModel } from "../db/schemas/certificate";
-import { EducationModel } from "../db/schemas/education";
-import { ProjectModel } from "../db/schemas/project";
 userAuthRouter.delete("/user/current", login_required, async (req, res, next) => {
     try {
         const user_id = req.currentUserId;
 
-        await AwardModel.deleteMany({ user_id });
-        await BlogModel.deleteMany({ user_id });
-        await CertificateModel.deleteMany({ user_id });
-        await EducationModel.deleteMany({ user_id });
-        await ProjectModel.deleteMany({ user_id });
+        await awardAuthService.deleteAwardAll({ user_id });
+        await blogService.deleteBlogAll({ user_id });
+        await certificateService.deleteCertificateAll({ user_id });
+        await educationService.deleteEducationAll({ user_id });
+        await projectService.deleteProjectAll({ user_id });
         await userAuthService.deleteUser({ user_id });
 
         return res.status(200).json({ result: "success" });
@@ -242,6 +243,7 @@ userAuthRouter.post("/change-password", login_required, async (req, res, next) =
     }
 });
 
+// userAuthService.setUser의 구조 때문에, 부득이하게 모델을 여기서 불러옴
 import { UserModel } from "../db/schemas/user";
 userAuthRouter.post("/user/likes", login_required, async (req, res, next) => {
     // 좋아요를 누르는 user
@@ -251,15 +253,13 @@ userAuthRouter.post("/user/likes", login_required, async (req, res, next) => {
 
     // params의 id로 찾은 유저의 likes Array를 상수 likes에 정의.
     // 만약 likes가 user_id를 포함하고 있다면 삭제하고, 없다면 생성함.
-    const likes = await UserModel.findOne({ id }).then((res) => res.likes);
+    const likes = await userAuthService.getUserById({ user_id: id }).then((res) => res.likes);
     let user;
 
     if (!likes.includes(user_id)) {
         user = await UserModel.findOneAndUpdate({ id }, { $push: { likes: user_id } }, { new: true });
-        console.log("Like");
     } else {
         user = await UserModel.findOneAndUpdate({ id }, { $pull: { likes: user_id } }, { new: true });
-        console.log("Unlike");
     }
 
     return res.json({ likes: user.likes });
