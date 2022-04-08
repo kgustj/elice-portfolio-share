@@ -9,14 +9,14 @@ import { blogRouter } from "./routers/blogRouter";
 import { errorMiddleware } from "./middlewares/errorMiddleware";
 
 const app = express();
-// 쿠키를 쉽게 추출하기 위해 도와주는 middleware 
-const cookieParser = require('cookie-parser');
+// 쿠키를 쉽게 추출하기 위해 도와주는 middleware
+const cookieParser = require("cookie-parser");
 
 // CORS 에러 방지, credential 인증 추가
-const corsOptions = { 
+const corsOptions = {
     origin: `${process.env.FRONT_URL || "http://localhost:3000"}`,
-    credentials: true
-}
+    credentials: true,
+};
 app.use(cors(corsOptions));
 
 // express 기본 제공 middleware
@@ -31,7 +31,7 @@ app.use(cookieParser());
 // 기본 페이지
 // 브라우저에서 로그아웃 시 연결되게 하여 쿠키에 저장된 refresh token 삭제
 app.get("/", (req, res) => {
-    res.clearCookie('refreshToken');
+    res.clearCookie("refreshToken");
     res.send("안녕하세요, 레이서 프로젝트 API 입니다.");
 });
 
