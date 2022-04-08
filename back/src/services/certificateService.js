@@ -50,6 +50,10 @@ class certificateService {
 
         return deleteCertificate;
     }
+
+    static deleteCertificateAll({ user_id }) {
+        return Certificate.deleteMany({ user_id });
+    }
 }
 
 export { certificateService };

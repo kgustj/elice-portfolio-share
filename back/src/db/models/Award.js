@@ -5,38 +5,36 @@ class Award {
         return AwardModel.create(newAward);
     }
 
-    static async findOneById({ awardId }) {
-        const award = await AwardModel.findOne({ id: awardId });
-        return award;
+    static findOneById({ awardId }) {
+        return AwardModel.findOne({ id: awardId });
     }
 
-    static async findManyByUserId({ user_id }) {
-        const awards = await AwardModel.find({ user_id });
-        return awards;
+    static findManyByUserId({ user_id }) {
+        return AwardModel.find({ user_id });
     }
 
     static async updateOne({ user_id, awardId, title, description }) {
-        const option = { returnOriginal: false }
-
+        const option = { returnOriginal: false };
         const updatedAward = await AwardModel.findOneAndUpdate(
-            { id: awardId, user_id },
+            { id: awardId, user_id }, //
             { title, description },
-            option
-        )
+            option,
+        );
         return updatedAward;
     }
 
-    static async deleteOne({ awardId }) {
-        const deletedAward = await AwardModel.deleteOne({ id: awardId });
-        return deletedAward;
+    static deleteOne({ awardId }) {
+        return AwardModel.deleteOne({ id: awardId });
+    }
+
+    static deleteAll({ user_id }) {
+        return AwardModel.deleteMany({ user_id });
     }
 
     // 수상 이력 중복 확인하기
-    static async findDuplicates ({ user_id, title, description}) {
-        const duplicateAward = await AwardModel.find({ user_id, title, description });
-        return duplicateAward;
+    static findDuplicates({ user_id, title, description }) {
+        return AwardModel.find({ user_id, title, description });
     }
-
 }
 
 export { Award };

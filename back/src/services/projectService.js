@@ -49,6 +49,10 @@ class projectService {
 
         return deleteProject;
     }
+
+    static deleteProjectAll({ user_id }) {
+        return Project.deleteMany({ user_id });
+    }
 }
 
 export { projectService };
