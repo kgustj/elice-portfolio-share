@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { Button, Form, Col, Row } from "react-bootstrap";
 import { MdCheckCircle, MdOutlineCancel } from "react-icons/md";
+import { useAlert } from 'react-alert'
+
 import * as Api from "../../api";
 
 function AwardEditForm({ currentAward, setAwards, onClose }) {
@@ -9,6 +11,9 @@ function AwardEditForm({ currentAward, setAwards, onClose }) {
   const [title, setTitle] = useState(currentAward.title);
   // useState로 description 상태를 생성함.
   const [description, setDescription] = useState(currentAward.description);
+
+  // useAlert로 alert 함수 이용
+  const alert = useAlert()
 
   // 편집하려는 정보가 입력됐는지 여부를 확인함.
   const isTitleValid = !!title;
@@ -22,11 +27,18 @@ function AwardEditForm({ currentAward, setAwards, onClose }) {
     const { user_id } = currentAward;
 
     // "awards/수상 id" 엔드포인트로 PUT 요청함.
-    await Api.put(`awards/${currentAward.id}`, {
-      user_id,
-      title,
-      description,
-    });
+    try {
+      await Api.put(`awards/${currentAward.id}`, {
+        user_id,
+        title,
+        description,
+      });
+    } catch (err) {
+      if (err.response.data === '"이미 입력된 수상 이력입니다."') {
+        alert.error('중복된 항목이 있습니다.')
+        alert.error('다른 내용으로 편집해 주세요.')
+      }
+    }
 
     // "awardlist/유저id" 엔드포인트로 GET 요청함.
     const res = await Api.get("awardlist", user_id);

@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { Form, Row, Col, Button } from "react-bootstrap";
 import { MdCheckCircle, MdOutlineCancel } from "react-icons/md";
+import { useAlert } from "react-alert";
+
 import DatePicker from "react-datepicker";
 import * as Api from "../../api";
 
@@ -18,6 +20,9 @@ const ProjectAddForm = ({ portfolioOwnerId, setProjects, onClose }) => {
   const [from_date, setFromDate] = useState(new Date());
   const [to_date, setToDate] = useState(new Date());
 
+  // useAlert로 alert 함수 이용
+  const alert = useAlert()
+
   const handsubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -25,13 +30,20 @@ const ProjectAddForm = ({ portfolioOwnerId, setProjects, onClose }) => {
     const user_id = portfolioOwnerId;
 
     // 생성 ("project/create" 엔드포인트로 post요청함.)
-    await Api.post("project/create", {
-      user_id: portfolioOwnerId,
-      title,
-      description,
-      from_date,
-      to_date,
-    });
+    try {
+      await Api.post("project/create", {
+        user_id: portfolioOwnerId,
+        title,
+        description,
+        from_date,
+        to_date,
+      });
+    } catch (err) {
+      if (err.response.data ==='"이미 사용중인 제목입니다."') {
+        alert.error('중복된 항목입니다.')
+        alert.error('다른 내용을 작성해 주세요.')
+      }
+    }
 
     // (생성 후) 조회 ("projectlist/유저id" 엔드포인트로 get요청함.)
     const res = await Api.get("projectlist", user_id);

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Form, Row, Col, Button } from "react-bootstrap";
 import { MdCheckCircle, MdOutlineCancel } from "react-icons/md";
 import DatePicker from "react-datepicker";
+import { useAlert } from 'react-alert'
+
 import * as Api from "../../api";
 
 const CertificateEditForm = ({ currentCertificate, setCertificates, onClose }) => {
@@ -13,6 +15,9 @@ const CertificateEditForm = ({ currentCertificate, setCertificates, onClose }) =
   // useState로 when_date 상태를 생성함.
   const [when_date, setWhenDate] = useState(new Date(currentCertificate.when_date))
 
+  // useAlert로 alert 함수 이용
+  const alert = useAlert()
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -21,13 +26,19 @@ const CertificateEditForm = ({ currentCertificate, setCertificates, onClose }) =
     const { user_id } = currentCertificate;
 
     // "certificates/프로젝트 id" 엔드포인트로 PUT 요청함.
-    await Api.put(`certificates/${currentCertificate.id}`, {
-      user_id,
-      title,
-      description,
-      when_date,
-    });
-
+    try {
+      await Api.put(`certificates/${currentCertificate.id}`, {
+        user_id,
+        title,
+        description,
+        when_date,
+      });
+    } catch (err) {
+      if (err.response.data === '"이미 사용중인 제목입니다."') {
+        alert.error('중복된 항목이 있습니다.')
+        alert.error('다른 내용으로 편집해 주세요.')
+      }
+    }
     // "certificatelist/유저id" 엔드포인트로 GET 요청함.
     const res = await Api.get("certificatelist", user_id);
     setCertificates(res.data);

@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { Form, Row, Col, Button } from "react-bootstrap";
 import { MdCheckCircle, MdOutlineCancel } from "react-icons/md";
+import { useAlert } from "react-alert";
+
 import DatePicker from "react-datepicker";
 import * as Api from "../../api";
 
@@ -12,6 +14,9 @@ const ProjectEditForm = ({ currentProject, setProjects, onClose }) => {
   const [from_date, setFromDate] = useState(new Date(currentProject.from_date))
   const [to_date, setToDate] = useState(new Date(currentProject.to_date))
 
+  // useAlert로 alert 함수 이용
+  const alert = useAlert()
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -20,13 +25,20 @@ const ProjectEditForm = ({ currentProject, setProjects, onClose }) => {
     const { user_id } = currentProject;
 
     // "projects/프로젝트 id" 엔드포인트로 PUT 요청함.
-    await Api.put(`projects/${currentProject.id}`, {
-      user_id,
-      title,
-      description,
-      from_date,
-      to_date
-    });
+    try {
+      await Api.put(`projects/${currentProject.id}`, {
+        user_id,
+        title,
+        description,
+        from_date,
+        to_date
+      });
+    } catch (err) {
+      if (err.response.data ==='"이미 입력된 수상 이력입니다."') {
+        alert.error('중복된 항목입니다.')
+        alert.error('다른 내용을 작성해 주세요.')
+      }
+    }
 
     // "projects/유저id" 엔드포인트로 GET 요청함.
     const res = await Api.get("projectlist", user_id);

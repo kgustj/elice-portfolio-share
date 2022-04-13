@@ -27,12 +27,19 @@ function EduEditForm({ currentEdu, setEdus, onClose }) {
     const { user_id } = currentEdu;
 
     // "educations/수상 id" 엔드포인트로 PUT 요청함.
-    await Api.put(`educations/${currentEdu.id}`, {
-      user_id,
-      school,
-      major,
-      position,
-    });
+    try {
+      await Api.put(`educations/${currentEdu.id}`, {
+        user_id,
+        school,
+        major,
+        position,
+      });
+    } catch (err) {
+      if (err.response.data === '"이미 입력된 학력입니다."') {
+        alert.error('중복된 항목이 있습니다.')
+        alert.error('다른 내용으로 편집해 주세요.')
+      }
+    }
 
     // "educationlist/유저 id" 엔드포인트로 GET 요청함.
     const res = await Api.get("educationlist", user_id);
