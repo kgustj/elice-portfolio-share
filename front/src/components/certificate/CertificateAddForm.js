@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { Form, Row, Col, Button } from "react-bootstrap";
 import { MdCheckCircle, MdOutlineCancel } from "react-icons/md";
 import DatePicker from "react-datepicker";
+import { useAlert } from "react-alert";
+
 import * as Api from "../../api";
 
 const CertificateAddForm = ({ portfolioOwnerId, setCertificates, onClose }) => {
@@ -16,6 +18,9 @@ const CertificateAddForm = ({ portfolioOwnerId, setCertificates, onClose }) => {
   const [description, setDescription] = useState("");
   const [when_date, setWhenDate] = useState(new Date());
 
+  // useAlert로 alert 함수 이용
+  const alert = useAlert()
+
   const handsubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -23,12 +28,19 @@ const CertificateAddForm = ({ portfolioOwnerId, setCertificates, onClose }) => {
     const user_id = portfolioOwnerId;
 
     // 생성 ("certificate/create" 엔드포인트로 post요청함.)
-    await Api.post("certificate/create", {
-      user_id: portfolioOwnerId,
-      title,
-      description,
-      when_date,
-    });
+    try {
+      await Api.post("certificate/create", {
+        user_id: portfolioOwnerId,
+        title,
+        description,
+        when_date,
+      });
+    } catch (err) {
+      if (err.response.data === '"이미 사용중인 제목입니다."') {
+        alert.error('중복된 항목입니다.')
+        alert.error('다른 내용을 작성해 주세요.')
+      }
+    }
 
     // (생성 후) 조회 ("certificatelist/유저id" 엔드포인트로 get요청함.)
     const res = await Api.get("certificatelist", user_id);

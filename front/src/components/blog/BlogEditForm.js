@@ -1,6 +1,8 @@
 // Blog>BlogEditForm
 import React, { useState } from "react";
 import { Button, Form, Col, Row } from "react-bootstrap";
+import { useAlert } from 'react-alert'
+
 import * as Api from "../../api";
 
 function BlogEditForm({ currentBlog, setBlogs, onClose }) {
@@ -8,6 +10,9 @@ function BlogEditForm({ currentBlog, setBlogs, onClose }) {
   const [service, setService] = useState(currentBlog.service);
   // useState로 url 상태를 생성함.
   const [url, setUrl] = useState(currentBlog.url);
+
+  // useAlert로 alert 함수 이용
+  const alert = useAlert()
 
   // 편집하려는 정보가 입력됐는지 여부를 확인함.
   const isServiceValid = !!service;
@@ -22,12 +27,19 @@ function BlogEditForm({ currentBlog, setBlogs, onClose }) {
     const { user_id } = currentBlog;
 
     // "blogs/수상 id" 엔드포인트로 PUT 요청함.
-    await Api.put(`blogs/${currentBlog.id}`, {
-      user_id,
-      service,
-      url: isUrlHasHttps ? url : 'https://' + url,
-    });
+    try {
+      await Api.put(`blogs/${currentBlog.id}`, {
+        user_id,
+        service,
+        url: isUrlHasHttps ? url : 'https://' + url,
+      });
+    } catch (err) {
+      if (err.response.data === '"이미 입력된 링크입니다."') {
+        alert.error('중복된 항목이 있습니다.');
+        alert.error('다른 내용으로 편집해 주세요.');
+      }
 
+    }
     // "bloglist/유저id" 엔드포인트로 GET 요청함.
     const res = await Api.get("bloglist", user_id);
     // blogs를 response의 data로 세팅함.

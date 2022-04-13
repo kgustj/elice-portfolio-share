@@ -1,6 +1,8 @@
 // Blogs>BlogAddForm
 import React, { useState } from "react";
 import { Button, Form, Col, Row } from "react-bootstrap";
+import { useAlert } from "react-alert";
+
 import * as Api from "../../api";
 
 function BlogAddForm({ portfolioOwnerId, setBlogs, onClose }) {
@@ -8,6 +10,9 @@ function BlogAddForm({ portfolioOwnerId, setBlogs, onClose }) {
   const [service, setService] = useState("");
   // useState로 url 상태를 생성함.
   const [url, setUrl] = useState("");
+
+  // useAlert로 alert 함수 이용
+  const alert = useAlert();
 
   // 추가하려는 정보가 입력됐는지 여부를 확인함.
   const isServiceValid = !!service;
@@ -22,11 +27,19 @@ function BlogAddForm({ portfolioOwnerId, setBlogs, onClose }) {
     const user_id = portfolioOwnerId;
 
     // "blog/create" 엔드포인트로 post요청함.
-    await Api.post("blog/create", {
-      user_id: portfolioOwnerId,
-      service,
-      url: isUrlHasHttps ? url : 'https://' + url,
+    
+    try {
+      await Api.post("blog/create", {
+        user_id: portfolioOwnerId,
+        service,
+        url: isUrlHasHttps ? url : 'https://' + url,
     });
+  } catch (err) {
+    if (err.response.data === '"이미 입력된 링크입니다."') {
+      alert.error('중복된 항목입니다.');
+      alert.error('다른 내용을 작성해 주세요.')
+    }
+  }
 
     // "bloglist/유저id" 엔드포인트로 get요청함.
     const res = await Api.get("bloglist", user_id);

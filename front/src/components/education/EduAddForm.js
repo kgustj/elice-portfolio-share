@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { Button, Col, Row, Form, FloatingLabel } from "react-bootstrap";
 import { MdCheckCircle, MdOutlineCancel } from "react-icons/md";
+import { useAlert } from "react-alert";
+
 import * as Api from "../../api";
 import EduRadioForm from "./EduRadioForm";
 
@@ -12,6 +14,9 @@ function EduAddForm({ portfolioOwnerId, setEdus, onClose }) {
   const [major, setMajor] = useState("");
   // useState로 position 상태를 생성함.
   const [position, setPosition] = useState();
+
+  // useAlert로 alert 함수 이용
+  const alert = useAlert()
 
   // 추가하려는 정보가 입력됐는지 여부를 확인함.
   const isSchoolValid = !!school;
@@ -25,12 +30,19 @@ function EduAddForm({ portfolioOwnerId, setEdus, onClose }) {
     // portfolioOwnerId를 user_id 변수에 할당함.
     const user_id = portfolioOwnerId;
     // "education/create" 엔드포인트로 post요청함.
-    await Api.post("education/create", {
-      user_id,
-      school,
-      major,
-      position,
-    });
+    try {
+      await Api.post("education/create", {
+        user_id,
+        school,
+        major,
+        position,
+      });
+    } catch (err) {
+      if (err.response.data ==='"이미 입력한 학력입니다."') {
+        alert.error('중복된 항목입니다.')
+        alert.error('다른 내용을 작성해 주세요.')
+      }
+    }
 
     // "educatonlist/유저id" 엔드포인트로 get요청함.
     const res = await Api.get("educationlist", user_id);
