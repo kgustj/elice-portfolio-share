@@ -53,7 +53,12 @@ cd front && yarn && yarn start
 
 ## 저장소 안내
 
-팀 GitHub 저장소(DeveloperInWonderland/portfolio-share-service)를 커밋 기록과 브랜치 그대로 옮겨 온 사본입니다. 접속 정보가 담긴 `.env` 파일은 커밋 기록에서 지웠습니다.
+| 구분 | 위치 |
+|---|---|
+| 팀 원본 | DeveloperInWonderland/portfolio-share-service (현재 비공개라 링크로 열리지 않습니다) |
+| 이 저장소 | 원본의 커밋 기록과 브랜치를 그대로 옮긴 개인 사본 |
+
+접속 정보가 담긴 `.env` 파일은 이 사본의 커밋 기록에서 지웠습니다.
 
 <details>
 <summary>프로젝트 당시 README</summary>
